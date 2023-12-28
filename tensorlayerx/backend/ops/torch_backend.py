@@ -468,10 +468,9 @@ def convert_to_tensor(value, dtype=None, device = None):
     elif device == 'gpu':
         device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     if isinstance(value, torch.Tensor):
-        if dtype is not None and value.dtype != dtype:
+        if dtype is not None:
             value = value.to(dtype)
-        if value.device != device:
-            value = value.to(device)
+        value = value.to(device)
     else:
         value = torch.tensor(value, dtype=dtype, device=device)
 
