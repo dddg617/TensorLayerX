@@ -171,7 +171,7 @@ def _save_weights(net, file_path, format=None):
     elif format == 'npz':
         utils.save_npz(net.all_weights, file_path)
     elif format == 'npz_dict':
-        if tlx.BACKEND == 'torch':
+        if tlx.BACKEND in ['torch', 'jittor']:
             utils.save_npz_dict(net.named_parameters(), file_path)
         else:
             utils.save_npz_dict(net.all_weights, file_path)

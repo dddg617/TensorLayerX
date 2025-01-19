@@ -1962,18 +1962,16 @@ def save_npz_dict(save_list=None, name='model.npz'):
     """
     if save_list is None:
         save_list = []
-    if tlx.BACKEND != 'torch':
+    if tlx.BACKEND not in ['torch', 'jittor']:
         save_list_names = [tensor.name for tensor in save_list]
 
     if tlx.BACKEND == 'tensorflow':
         save_list_var = tf_variables_to_numpy(save_list)
     elif tlx.BACKEND == 'mindspore':
         save_list_var = ms_variables_to_numpy(save_list)
-    elif tlx.BACKEND == 'jittor':
-        save_list_var = jt_variables_to_numpy(save_list)
     elif tlx.BACKEND == 'paddle':
         save_list_var = pd_variables_to_numpy(save_list)
-    elif tlx.BACKEND == 'torch':
+    elif tlx.BACKEND in ['torch', 'jittor']:
         save_list_names = []
         save_list_var = []
         for named, values in save_list:
@@ -2025,7 +2023,7 @@ def load_and_assign_npz_dict(name='model.npz', network=None, skip=False, name_ma
         net_weights_name = [n for n, v in network.named_parameters()]
         torch_weights_dict = {n: v for n, v in network.named_parameters()}
     elif tlx.BACKEND == 'jittor':
-        net_weights_name = [w.name() for w in network.all_weights]
+        net_weights_name = [n for n, v in network.named_parameters()]
 																		 
     else:
         net_weights_name = [w.name for w in network.all_weights]

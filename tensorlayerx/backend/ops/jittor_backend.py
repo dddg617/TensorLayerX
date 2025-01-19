@@ -1179,7 +1179,7 @@ class NotEqual(object):
 
 class CountNonzero(object):
 
-    def __init__(self, keepdims=None, dtype=None):
+    def __init__(self, keepdims=None, dtype="float32"):
         self.keepdims = keepdims
         self.dtype = dtype
 
@@ -1354,7 +1354,7 @@ def angle(x):
 
 
 def argmax(x, axis=None, keepdim=False, dtype='int64'):
-    return jt.argmax(x, dim=axis, keepdim=keepdim)
+    return jt.argmax(x, dim=axis, keepdims=keepdim)
 
 
 def argmin(x, axis=None, dtype='int64'):
@@ -1646,8 +1646,8 @@ def where(condition, x, y):
     return jt.where(condition,x, y)
 
 
-def ones_like(x, dtype=None):
-    return jt.ones_like(x, dtype=dtype)
+def ones_like(x):
+    return jt.ones_like(x)
 
 
 def zeros_like(x, dtype=None):
@@ -1663,13 +1663,13 @@ def unsorted_segment_sum(x, segment_ids, num_segments):
     segment_ids = jt.array(segment_ids, dtype=jt.int64)
     assert x.shape[0] == segment_ids.shape[0], "the length of segment_ids should be equal to data.shape[0]."
     if len(segment_ids.shape) == 1:
-        s = jt.prod(jt.array(x.shape[1:])).to(jt.int32)
+        s = jt.prod(jt.array(tuple(x.shape[1:]))).to(jt.int32).item()
         segment_ids = segment_ids.repeat_interleave(s).view(segment_ids.shape[0], *x.shape[1:])
 
     assert x.shape == segment_ids.shape, "data.shape and segment_ids.shape should be equal"
 
     shape = [num_segments] + list(x.shape[1:])
-    tensor = jt.zeros(*shape).to(x.dtype).scatter_add(0, segment_ids, x)
+    tensor = jt.zeros(*shape).to(x.dtype).scatter(0, segment_ids, x, 'add')
     return tensor
 
 
@@ -1734,7 +1734,7 @@ def set_seed(seed):
 
 def is_tensor(x):
 
-    return isinstance(x, jt.Tensor)
+    return isinstance(x, jt.Var)
 
 def tensor_scatter_nd_update(tensor, indices, updates):
     tensor = jt.array(tensor)
@@ -1765,10 +1765,10 @@ def mask_select(x, mask, axis = 0):
     elif axis == 3:
         return x[:,:,:, mask]
 
-def eye(n, m=None, dtype=None):
+def eye(n, m=None, dtype="float32"):
     if m is None:
         m = n
-    return jt.init.eye((n,m), dtype =dtype)
+    return jt.init.eye((n,m), dtype=dtype)
 
 
 def einsum(equation, *operands):
@@ -1897,3 +1897,5 @@ def mv(x, vec):
 
     return jt.matmul(x, vec)
 
+def detach(x):
+    return x.detach()
